@@ -4,7 +4,7 @@ COMMAND=$1
 
 # check if any command is provided
 if [[ -z $COMMAND ]] ; then
-	echo -e "Err: No command provided. Check the docs at https://github.com/santoshbaggam/stacker"
+	echo "Err: No command provided. Check the docs at https://github.com/santoshbaggam/stacker"
 	exit 1
 fi
 
@@ -23,8 +23,7 @@ if [[ $COMMAND = "build" ]] ; then
 
 	# install base utils
 	echo "Installing common software.."
-	sudo apt-get install -qq software-properties-common build-essential \ 
-		git curl wget unzip python-software-properties
+	sudo apt-get install -qq software-properties-common build-essential curl wget unzip git python-software-properties
 	echo "Installed successfully!"
 
 	sudo apt-get update
@@ -63,7 +62,7 @@ elif [[ $COMMAND = "site" ]] ; then
 	GIT_IS_INSTALLED=$?
 
 	if [[ $GIT_IS_INSTALLED -ne 0 ]] ; then
-		echo "Err: Git is not installed. Run `stacker build` to get the latest tools and try again."
+		echo "Err: Git is not installed. Run \`stacker build\` to get the latest tools and try again."
 		exit 1
 	fi
 
@@ -72,7 +71,7 @@ elif [[ $COMMAND = "site" ]] ; then
 	CURL_IS_INSTALLED=$?
 
 	if [[ $CURL_IS_INSTALLED -ne 0 ]] ; then
-		echo "Err: cURL is not installed. Run `stacker build` to get the latest tools and try again."
+		echo "Err: cURL is not installed. Run \`stacker build\` to get the latest tools and try again."
 		exit 1
 	fi
 
@@ -84,8 +83,27 @@ elif [[ $COMMAND = "site" ]] ; then
 		echo "Err: cURL is not installed. Run \`stacker build\` to get the latest tools and try again."
 		exit 1
 	fi
+
+	# ex: api.example.com (or) docs.example.com
+	SITE=$2
+
+	if [[ -z $SITE ]] ; then
+		echo "Err: Site like \`api.example.com\` or \`docs.example.com\` is required. Check the docs at https://github.com/santoshbaggam/stacker"
+		exit 1
+	fi
+
+	# absolute path to public folder. ex: /var/www/path/to/example-app/public
+	PATH=$3
+
+	if [[ -z $PATH ]] ; then
+		echo "Err: App path like \`/var/www/path/to/example-app/public\` is required. Check the docs at https://github.com/santoshbaggam/stacker"
+		exit 1
+	fi
+
+	# create the nginx server block
+	
 # end of valid commands
 else
-	echo -e "Err: Invalid command. Check the docs at https://github.com/santoshbaggam/stacker"
+	echo "Err: Invalid command. Check the docs at https://github.com/santoshbaggam/stacker"
 	exit 1
 fi

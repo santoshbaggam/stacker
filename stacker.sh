@@ -118,7 +118,7 @@ elif [[ $COMMAND = "site" ]] ; then
 	nginx_logs=/var/log/nginx
 
 	if [[ -e $nginx_sites_available/$SITE ]] ; then
-		echo "Site already exists. To re-config run \`sudo rm $nginx_sites_available/$SITE\` and try again."
+		echo "Site already exists. To re-config run \`sudo rm -f $nginx_sites_available/$SITE $nginx_sites_enabled/$Site\` and try again."
 		exit 1
 	fi
 

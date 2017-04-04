@@ -14,6 +14,7 @@ if [[ $COMMAND = "build" ]] ; then
 
 	# sudo apt-get install -qq language-pack-en
 	echo "Updating language and locales.."
+	# sudo apt-get install language-pack-en # [Testing..]
 	export LANGUAGE=en_US.UTF-8
 	sudo locale-gen en_US.UTF-8
 	sudo update-locale LANG=en_US.UTF-8 LC_CTYPE=en_US.UTF-8 LC_ALL=en_US.UTF-8
@@ -114,6 +115,7 @@ elif [[ $COMMAND = "site" ]] ; then
 
 	nginx_sites_available=/etc/nginx/sites-available
 	nginx_sites_enabled=/etc/nginx/sites-enabled
+	nginx_logs=/var/log/nginx
 
 	if [[ -e $nginx_sites_available/$SITE ]] ; then
 		echo "Site already exists. To re-config run \`sudo rm $nginx_sites_available/$SITE\` and try again."
@@ -127,9 +129,9 @@ elif [[ $COMMAND = "site" ]] ; then
 	fi
 
 	sudo sed -i "s/server_name {SITE};/server_name $SITE;/" $SITE.tmp
-	sudo sed -i "s/root {PATH};/root $APP_PATH;/" $SITE.tmp
-	sudo sed -i "s/access_log \/var\/log\/nginx\/{SITE}\/access.log;/access_log \/var\/log\/nginx\/$SITE\/access.log;/" $SITE.tmp
-	sudo sed -i "s/error_log \/var\/log\/nginx\/{SITE}\/error.log;/error_log \/var\/log\/nginx\/$SITE\/error.log;/" $SITE.tmp
+	sudo sed -i "s|root {PATH};|root $APP_PATH;|" $SITE.tmp
+	sudo sed -i "s|access_log $nginx_logs/{SITE}/access.log;|access_log $nginx_logs/$SITE/access.log;|" $SITE.tmp
+	sudo sed -i "s|error_log $nginx_logs/{SITE}/error.log;|error_log $nginx_logs/$SITE/error.log;|" $SITE.tmp
 
 	sudo mv $SITE.tmp $nginx_sites_available/$SITE
 

@@ -14,10 +14,10 @@ if [[ $COMMAND = "build" ]] ; then
 
 	# sudo apt-get install -qq language-pack-en
 	echo "Updating language and locales.."
-	# sudo apt-get install language-pack-en # [Testing..]
-	export LANGUAGE=en_US.UTF-8
-	sudo locale-gen en_US.UTF-8
-	sudo update-locale LANG=en_US.UTF-8 LC_CTYPE=en_US.UTF-8 LC_ALL=en_US.UTF-8
+	sudo apt-get install language-pack-en # [Testing..]
+	# export LANGUAGE=en_US.UTF-8
+	# sudo locale-gen en_US.UTF-8
+	# sudo update-locale LANG=en_US.UTF-8 LC_CTYPE=en_US.UTF-8 LC_ALL=en_US.UTF-8
 	echo "Updated successfully!"
 
 	sudo apt-get update
@@ -122,7 +122,7 @@ elif [[ $COMMAND = "site" ]] ; then
 		exit 1
 	fi
 
-	curl --silent -L https://raw.githubusercontent.com/santoshbaggam/stacker/dev/scripts/nginx-http-server-black.conf > $SITE.tmp
+	curl --silent -L https://raw.githubusercontent.com/santoshbaggam/stacker/master/scripts/nginx-http-server-black.conf > $SITE.tmp
 
 	if [[ ! -d "/var/log/nginx/$SITE" ]] ; then
 		sudo mkdir /var/log/nginx/$SITE

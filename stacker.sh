@@ -58,6 +58,7 @@ if [[ $COMMAND = "build" ]] ; then
 # check for `site` command
 elif [[ $COMMAND = "site" ]] ; then
 	# check for git
+	echo "Checking Git.."
 	git --version > /dev/null 2>&1
 	GIT_IS_INSTALLED=$?
 
@@ -67,6 +68,7 @@ elif [[ $COMMAND = "site" ]] ; then
 	fi
 
 	# check for curl
+	echo "Checking cURL.."
 	curl --version > /dev/null 2>&1
 	CURL_IS_INSTALLED=$?
 
@@ -79,6 +81,7 @@ elif [[ $COMMAND = "site" ]] ; then
 	nginx -v > /dev/null 2>&1
 	NGINX_IS_INSTALLED=$?
 
+	echo "Checking NGINX.."
 	if [[ $NGINX_IS_INSTALLED -ne 0 ]] ; then
 		echo "Err: cURL is not installed. Run \`stacker build\` to get the latest tools and try again."
 		exit 1
@@ -93,15 +96,49 @@ elif [[ $COMMAND = "site" ]] ; then
 	fi
 
 	# absolute path to public folder. ex: /var/www/path/to/example-app/public
-	PATH=$3
+	APP_PATH=$3
 
-	if [[ -z $PATH ]] ; then
+	if [[ -z $APP_PATH ]] ; then
 		echo "Err: App path like \`/var/www/path/to/example-app/public\` is required. Check the docs at https://github.com/santoshbaggam/stacker"
 		exit 1
 	fi
 
-	# create the nginx server block
-	
+	# check if the folder path exists
+	if [[ ! -d $APP_PATH ]] ; then
+		echo "Err: The specified path \`$APP_PATH\` does not exist."
+		exit 1
+	fi
+
+	# create nginx server block
+	echo "Creating NGINX server block.."
+
+	nginx_sites_available=/etc/nginx/sites-available
+	nginx_sites_enabled=/etc/nginx/sites-enabled
+
+	if [[ -e $nginx_sites_available/$SITE ]] ; then
+		echo "Site already exists. To re-config run \`sudo rm $nginx_sites_available/$SITE\` and try again."
+		exit 1
+	fi
+
+	curl --silent -L https://raw.githubusercontent.com/santoshbaggam/stacker/dev/scripts/nginx-http-server-black.conf > $SITE.tmp
+
+	if [[ ! -d "/var/log/nginx/$SITE" ]] ; then
+		sudo mkdir /var/log/nginx/$SITE
+	fi
+
+	sudo sed -i "s/server_name {SITE};/server_name $SITE;/" $SITE.tmp
+	sudo sed -i "s/root {PATH};/root $APP_PATH;/" $SITE.tmp
+	sudo sed -i "s/access_log \/var\/log\/nginx\/{SITE}\/access.log;/access_log \/var\/log\/nginx\/$SITE\/access.log;/" $SITE.tmp
+	sudo sed -i "s/error_log \/var\/log\/nginx\/{SITE}\/error.log;/error_log \/var\/log\/nginx\/$SITE\/error.log;/" $SITE.tmp
+
+	sudo mv $SITE.tmp $nginx_sites_available/$SITE
+
+	# create nginx sites enabled symlink
+	sudo ln -s $nginx_sites_available/$SITE $nginx_sites_enabled
+
+	sudo service nginx reload
+	echo "Server block created and site ($SITE) is successfully installed!"
+
 # end of valid commands
 else
 	echo "Err: Invalid command. Check the docs at https://github.com/santoshbaggam/stacker"

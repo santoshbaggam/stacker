@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 
+github_repo=https://github.com/santoshbaggam/stacker
+
 COMMAND=$1
 
 # check if any command is provided
 if [[ -z $COMMAND ]] ; then
-	echo "Err: No command provided. Check the docs at https://github.com/santoshbaggam/stacker"
+	echo "Err: No command provided. Check the docs at $github_repo"
 	exit 1
 fi
 
 # check for `build` command
-if [[ $COMMAND = "build" ]] ; then
+if [[ "$COMMAND" = "build" ]] ; then
 	sudo apt-get update
 
 	# sudo apt-get install -qq language-pack-en
@@ -41,7 +43,7 @@ if [[ $COMMAND = "build" ]] ; then
 		php-dompdf php-zip php-xml
 	echo "PHP/modules are installed successfully!"
 
-	# secure php to execute the closest file it can find
+	# secure php to not to execute the closest file it finds
 	echo "Securing PHP.."
 	sudo sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.0/fpm/php.ini
 	echo "PHP is secured!"
@@ -57,7 +59,7 @@ if [[ $COMMAND = "build" ]] ; then
 	echo "Composer is installed successfully!"
 
 # check for `site` command
-elif [[ $COMMAND = "site" ]] ; then
+elif [[ "$COMMAND" = "site" ]] ; then
 	# check for git
 	echo "Checking Git.."
 	git --version > /dev/null 2>&1
@@ -92,7 +94,7 @@ elif [[ $COMMAND = "site" ]] ; then
 	SITE=$2
 
 	if [[ -z $SITE ]] ; then
-		echo "Err: Site like \`api.example.com\` or \`docs.example.com\` is required. Check the docs at https://github.com/santoshbaggam/stacker"
+		echo "Err: Site like \`api.example.com\` or \`docs.example.com\` is required. Check the docs at $github_repo"
 		exit 1
 	fi
 
@@ -100,7 +102,7 @@ elif [[ $COMMAND = "site" ]] ; then
 	APP_PATH=$3
 
 	if [[ -z $APP_PATH ]] ; then
-		echo "Err: App path like \`/var/www/path/to/example-app/public\` is required. Check the docs at https://github.com/santoshbaggam/stacker"
+		echo "Err: App path like \`/var/www/path/to/example-app/public\` is required. Check the docs at $github_repo"
 		exit 1
 	fi
 
@@ -143,6 +145,6 @@ elif [[ $COMMAND = "site" ]] ; then
 
 # end of valid commands
 else
-	echo "Err: Invalid command. Check the docs at https://github.com/santoshbaggam/stacker"
+	echo "Err: Invalid command. Check the docs at $github_repo"
 	exit 1
 fi

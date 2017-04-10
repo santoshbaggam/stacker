@@ -124,7 +124,7 @@ elif [[ "$COMMAND" = "site" ]] ; then
 	fi
 
 	# pull http server block
-	curl -s -L https://raw.githubusercontent.com/santoshbaggam/stacker/master/scripts/nginx-https-server-block.conf > $SITE.tmp
+	curl -s -L https://raw.githubusercontent.com/santoshbaggam/stacker/master/scripts/nginx-http-server-block.conf > $SITE.tmp
 
 	sudo sed -i "s/server_name {SITE};/server_name $SITE;/" $SITE.tmp
 	sudo sed -i "s|root {PATH};|root $APP_PATH;|" $SITE.tmp

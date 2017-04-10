@@ -161,7 +161,7 @@ elif [[ "$COMMAND" = "site" ]] ; then
 		sudo letsencrypt certonly -n --agree-tos --webroot -w $APP_PATH -d $SITE -m $EMAIL
 
 		# pull https server block
-		curl -s -L https://raw.githubusercontent.com/santoshbaggam/stacker/master/scripts/nginx-https-server-black.conf > $SITE.tmp
+		curl -s -L https://raw.githubusercontent.com/santoshbaggam/stacker/master/scripts/nginx-https-server-block.conf > $SITE.tmp
 
 		sudo sed -i "s|ssl_certificate /etc/letsencrypt/live/{SITE}/fullchain.pem;|ssl_certificate /etc/letsencrypt/live/$SITE/fullchain.pem;|" $SITE.tmp
 		sudo sed -i "s|ssl_certificate_key /etc/letsencrypt/live/{SITE}/privkey.pem;|ssl_certificate_key /etc/letsencrypt/live/$SITE/privkey.pem;|" $SITE.tmp

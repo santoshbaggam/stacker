@@ -171,7 +171,7 @@ elif [[ "$COMMAND" = "site" ]] ; then
 	# prompt email id, to which ssl cert. expiration mail shoots out
 	read -p "Enter your E-mail (used for SSL expiry reminders, etc) : " -e EMAIL
 
-	while [[ ! -z "$EMAIL" ]]; do
+	while [[ -z "$EMAIL" ]]; do
 		read -p "Invalid E-mail, enter again: " -e EMAIL
 	done
 

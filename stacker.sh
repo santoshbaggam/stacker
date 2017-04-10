@@ -98,6 +98,8 @@ elif [[ "$COMMAND" = "site" ]] ; then
 	# absolute path to public folder. ex: /var/www/path/to/example-app/public
 	read -p "Enter the absolute path to public folder [ex: /var/www/path/to/example-app/public]: " -e APP_PATH
 
+	echo "Mapping $SITE -> $APP_PATH.."
+
 	if [[ -z $APP_PATH ]] ; then
 		echo "Err: App path like \`/var/www/path/to/example-app/public\` is required. Check the docs at $github_repo"
 		exit 1
@@ -109,63 +111,20 @@ elif [[ "$COMMAND" = "site" ]] ; then
 		exit 1
 	fi
 
-	# mapping
-	echo "Mapping $SITE -> $APP_PATH.."
+	# create nginx server block
+	echo "Creating NGINX server block.."
 
 	nginx_sites_available=/etc/nginx/sites-available
 	nginx_sites_enabled=/etc/nginx/sites-enabled
 	nginx_logs=/var/log/nginx
 
 	if [[ -e $nginx_sites_available/$SITE ]] ; then
-		echo "Site already exists. To re-config run \`sudo rm -f $nginx_sites_available/$SITE $nginx_sites_enabled/$Site\` and try again."
+		echo "Site already exists. To re-config run \`sudo rm -f $nginx_sites_available/$SITE $nginx_sites_enabled/$SITE\` and try again."
 		exit 1
 	fi
 
-	# ask for SSL enabling
-	read -p "Do you want to enable SSL for this site? (Y/n): " -n 1 -er SSL
-
-	while [[ ! "$SSL" =~ ^y|Y|n|N$ ]]; do
-		read -p "Invalid entry, do you want to enable SSL? (Y/n): " -n 1 -er SSL
-	done
-
-	if [[ "$SSL" = "n" ]]; then
-		# create nginx server block
-		echo "Creating NGINX server block.."
-
-		# pull http server block
-		curl -s -L https://raw.githubusercontent.com/santoshbaggam/stacker/master/scripts/nginx-http-server-black.conf > $SITE.tmp
-	else
-		# check for letsencrypt
-		echo "Checking Letsencrypt.."
-		letsencrypt --version > /dev/null 2>&1
-		LETSENCRYPT_IS_INSTALLED=$?
-
-		if [[ $LETSENCRYPT_IS_INSTALLED -ne 0 ]] ; then
-			sudo apt-get install -qq letsencrypt
-			echo "Letsencrypt is successfully installed!"
-		else
-			echo "Letsencrypt is already installed."
-		fi
-
-		# prompt email id, to which ssl cert. expiration mail shoots out
-		read -p "Enter your E-mail (used for SSL expiry reminders, etc): " -e EMAIL
-
-		while [[ -z "$EMAIL" ]]; do
-			read -p "Invalid E-mail, enter again? : " -e EMAIL
-		done
-
-		# create nginx server block
-		echo "Creating NGINX server block.."
-
-		# generate the certificate
-		sudo letsencrypt certonly -n --agree-tos --webroot -w $APP_PATH -d $SITE -m $EMAIL
-
-		# pull https server block
-		curl -s -L https://raw.githubusercontent.com/santoshbaggam/stacker/master/scripts/nginx-https-server-block.conf > $SITE.tmp
-
-		sudo sed -i "s|ssl_certificate /etc/letsencrypt/live/{SITE}/fullchain.pem;|ssl_certificate /etc/letsencrypt/live/$SITE/fullchain.pem;|" $SITE.tmp
-		sudo sed -i "s|ssl_certificate_key /etc/letsencrypt/live/{SITE}/privkey.pem;|ssl_certificate_key /etc/letsencrypt/live/$SITE/privkey.pem;|" $SITE.tmp
-	fi
+	# pull http server block
+	curl -s -L https://raw.githubusercontent.com/santoshbaggam/stacker/master/scripts/nginx-https-server-block.conf > $SITE.tmp
 
 	sudo sed -i "s/server_name {SITE};/server_name $SITE;/" $SITE.tmp
 	sudo sed -i "s|root {PATH};|root $APP_PATH;|" $SITE.tmp
@@ -182,9 +141,64 @@ elif [[ "$COMMAND" = "site" ]] ; then
 	sudo ln -s $nginx_sites_available/$SITE $nginx_sites_enabled
 
 	sudo service nginx reload
+	echo "NGINX server block successfully created!"
+
+	# ask for SSL enabling
+	read -p "Do you want to enable SSL for this site? (Y/n): " -n 1 -er SSL
+
+	while [[ ! "$SSL" =~ ^y|Y|n|N$ ]]; do
+		read -p "Invalid entry, do you want to enable SSL? (Y/n): " -n 1 -er SSL
+	done
+
+	if [[ "$SSL" = "n" ]]; then
+		echo "Server block created and site ($SITE) is successfully installed!"
+		exit 0
+	fi
+
+	# ssl code..
+	# check for letsencrypt
+	echo "Checking Letsencrypt.."
+	letsencrypt --version > /dev/null 2>&1
+	LETSENCRYPT_IS_INSTALLED=$?
+
+	if [[ $LETSENCRYPT_IS_INSTALLED -ne 0 ]] ; then
+		sudo apt-get install -qq letsencrypt
+		echo "Letsencrypt is successfully installed"
+	else
+		echo "Letsencrypt is already installed."
+	fi
+
+	# prompt email id, to which ssl cert. expiration mail shoots out
+	read -p "Enter your E-mail (used for SSL expiry reminders, etc) : " -e EMAIL
+
+	while [[ ! -z "$EMAIL" ]]; do
+		read -p "Invalid E-mail, enter again: " -e EMAIL
+	done
+
+	# generate the certificate
+	sudo letsencrypt certonly -n --agree-tos --webroot -w $APP_PATH -d $SITE -m $EMAIL
+
+	# pull https server block
+	curl -s -L https://raw.githubusercontent.com/santoshbaggam/stacker/master/scripts/nginx-https-server-block.conf > $SITE.tmp
+
+	sudo sed -i "s|ssl_certificate /etc/letsencrypt/live/{SITE}/fullchain.pem;|ssl_certificate /etc/letsencrypt/live/$SITE/fullchain.pem;|" $SITE.tmp
+	sudo sed -i "s|ssl_certificate_key /etc/letsencrypt/live/{SITE}/privkey.pem;|ssl_certificate_key /etc/letsencrypt/live/$SITE/privkey.pem;|" $SITE.tmp
+	sudo sed -i "s/server_name {SITE};/server_name $SITE;/" $SITE.tmp
+	sudo sed -i "s|root {PATH};|root $APP_PATH;|" $SITE.tmp
+	sudo sed -i "s|access_log $nginx_logs/{SITE}/access.log;|access_log $nginx_logs/$SITE/access.log;|" $SITE.tmp
+	sudo sed -i "s|error_log $nginx_logs/{SITE}/error.log;|error_log $nginx_logs/$SITE/error.log;|" $SITE.tmp
+
+	# remove existing config
+	rm -f $nginx_sites_available/$SITE $nginx_sites_enabled/$SITE
+
+	sudo mv $SITE.tmp $nginx_sites_available/$SITE
+
+	# create nginx sites enabled symlink
+	sudo ln -s $nginx_sites_available/$SITE $nginx_sites_enabled
+
+	sudo service nginx reload
 
 	echo "Server block created and site ($SITE) is successfully installed!"
-
 # end of valid commands
 else
 	echo "Err: Invalid command. Check the docs at $github_repo"

@@ -189,7 +189,7 @@ elif [[ "$COMMAND" = "site" ]] ; then
 	sudo sed -i "s|error_log $nginx_logs/{SITE}/error.log;|error_log $nginx_logs/$SITE/error.log;|" $SITE.tmp
 
 	# remove existing config
-	rm -f $nginx_sites_available/$SITE $nginx_sites_enabled/$SITE
+	sudo rm -f $nginx_sites_available/$SITE $nginx_sites_enabled/$SITE
 
 	sudo mv $SITE.tmp $nginx_sites_available/$SITE
 

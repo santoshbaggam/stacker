@@ -58,6 +58,7 @@ if [[ "$COMMAND" = "build" ]] ; then
 	sudo mv composer.phar /usr/bin/composer
 	echo "Composer is installed successfully!"
 
+	echo "Stack built successfully!"
 # check for `site` command
 elif [[ "$COMMAND" = "site" ]] ; then
 	# check for git
@@ -150,6 +151,7 @@ elif [[ "$COMMAND" = "site" ]] ; then
 		read -p "Invalid entry, do you want to enable SSL? (Y/n): " -n 1 -er SSL
 	done
 
+	# SSL exit
 	if [[ "$SSL" = "n" ]]; then
 		echo "Server block created and site ($SITE) is successfully installed!"
 		exit 0
@@ -178,6 +180,18 @@ elif [[ "$COMMAND" = "site" ]] ; then
 	# generate the certificate
 	sudo letsencrypt certonly -n --agree-tos --webroot -w $APP_PATH -d $SITE -m $EMAIL
 
+	# generate dhparam cert if not found
+	if [[ ! -e /etc/ssl/certs/dhparam-2048.pem ]] ; then
+		sudo openssl dhparam -out /etc/ssl/certs/dhparam-2048.pem 2048
+		echo "SSL cipher successfully generated."
+	fi
+
+	# check for nginx ssl param snippet, else pull it in
+	if [[ ! -e /etc/nginx/snippets/ssl-params.conf ]] ; then
+		curl -s -L https://raw.githubusercontent.com/santoshbaggam/stacker/master/scripts/nginx-ssl-snipper.conf > /etc/nginx/snippets/ssl-params.conf
+	fi
+
+	echo "Creating NGINX HTTPS server block.."
 	# pull https server block
 	curl -s -L https://raw.githubusercontent.com/santoshbaggam/stacker/master/scripts/nginx-https-server-block.conf > $SITE.tmp
 
@@ -198,7 +212,7 @@ elif [[ "$COMMAND" = "site" ]] ; then
 
 	sudo service nginx reload
 
-	echo "Server block created and site ($SITE) is successfully installed!"
+	echo "Server block created and site ($SITE) is successfully installed over HTTPS!"
 # end of valid commands
 else
 	echo "Err: Invalid command. Check the docs at $github_repo"

@@ -12,7 +12,7 @@ fi
 
 # check for `build` command
 if [[ "$COMMAND" = "build" ]] ; then
-	sudo apt-get update
+	sudo apt-get update > /dev/null
 
 	# sudo apt-get install -qq language-pack-en
 	echo "Updating language and locales.."
@@ -22,14 +22,14 @@ if [[ "$COMMAND" = "build" ]] ; then
 	# sudo update-locale LANG=en_US.UTF-8 LC_CTYPE=en_US.UTF-8 LC_ALL=en_US.UTF-8
 	echo "Updated successfully!"
 
-	sudo apt-get update
+	sudo apt-get update > /dev/null
 
 	# install base utils
 	echo "Installing common software.."
 	sudo apt-get install -qq software-properties-common build-essential curl wget unzip git python-software-properties
 	echo "Installed successfully!"
 
-	sudo apt-get update
+	sudo apt-get update > /dev/null
 
 	# install nginx
 	echo "Installing NGINX.."
@@ -61,8 +61,6 @@ if [[ "$COMMAND" = "build" ]] ; then
 	echo "Stack built successfully!"
 # check for `site` command
 elif [[ "$COMMAND" = "site" ]] ; then
-	sudo apt-get update
-
 	# check for git
 	git --version > /dev/null 2>&1
 	GIT_IS_INSTALLED=$?
@@ -113,6 +111,8 @@ elif [[ "$COMMAND" = "site" ]] ; then
 		echo "Err: The specified path \`$APP_PATH\` does not exist."
 		exit 1
 	fi
+
+	sudo apt-get update > /dev/null
 
 	# create nginx server block
 	echo "Creating NGINX server block.."

@@ -61,6 +61,8 @@ if [[ "$COMMAND" = "build" ]] ; then
 	echo "Stack built successfully!"
 # check for `site` command
 elif [[ "$COMMAND" = "site" ]] ; then
+	sudo apt-get update
+
 	# check for git
 	git --version > /dev/null 2>&1
 	GIT_IS_INSTALLED=$?
@@ -188,7 +190,7 @@ elif [[ "$COMMAND" = "site" ]] ; then
 
 	# check for nginx ssl param snippet, else pull it in
 	if [[ ! -e /etc/nginx/snippets/ssl-params.conf ]] ; then
-		curl -s -L https://raw.githubusercontent.com/santoshbaggam/stacker/master/scripts/nginx-ssl-snipper.conf > /etc/nginx/snippets/ssl-params.conf
+		curl -s -L https://raw.githubusercontent.com/santoshbaggam/stacker/master/scripts/nginx-ssl-snippet.conf > /etc/nginx/snippets/ssl-params.conf
 	fi
 
 	echo "Creating NGINX HTTPS server block.."

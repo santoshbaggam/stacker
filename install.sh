@@ -22,6 +22,9 @@ sudo curl -sSL https://raw.githubusercontent.com/santoshbaggam/stacker/master/st
 
 sudo chmod +x ./stacker
 
-sudo mv ./stacker /usr/bin/
+sudo cp ./stacker /usr/local/bin/
+sudo cp ./stacker /usr/bin/
+
+rm -f stacker
 
 echo "Installed Stacker successfully!"

@@ -37,6 +37,8 @@ You can install the following stack with the help of Stacker build:
 curl -sSL https://raw.githubusercontent.com/santoshbaggam/stacker/master/install.sh | bash
 ```
 
+> Note: As of now, Stacker works only on the Xenial (16.04) version of Ubuntu (preferably a fresh installation). The other flavors of Linux and their versions would be supported soon.
+
 ### Build
 
 Once installed, simply run the below command to install the latest stack of your choice.

@@ -84,7 +84,7 @@ elif [[ "$COMMAND" = "site" ]] ; then
 	NGINX_IS_INSTALLED=$?
 
 	if [[ $NGINX_IS_INSTALLED -ne 0 ]] ; then
-		echo "Err: cURL is not installed. Run \`stacker build\` to get the latest tools and try again."
+		echo "Err: NGINX is not installed. Run \`stacker build\` to get the latest tools and try again."
 		exit 1
 	fi
 

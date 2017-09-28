@@ -215,6 +215,13 @@ elif [[ "$COMMAND" = "site" ]] ; then
 	sudo service nginx reload
 
 	echo "Server block created and site ($SITE) is successfully installed over HTTPS!"
+	echo ""
+	echo "*********** Security Hardening / Tips *********** "
+	echo "Consider adding the following headers to your Nginx configuration to enhance the security of your site/app:"
+	echo "add_header X-Frame-Options SAMEORIGIN;"
+	echo "add_header X-Content-Type-Options nosniff;"
+	echo "add_header X-XSS-Protection "1; mode=block";"
+	echo "*********** End of suggested headers ***********"
 # end of valid commands
 else
 	echo "Err: Invalid command. Check the docs at $github_repo"
